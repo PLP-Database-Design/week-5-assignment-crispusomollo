@@ -27,47 +27,45 @@ db.connect(err => {
     console.log('Connected to the MySQL database');
 });
 
-// Example API endpoint to fetch data from the database
+// 1. Retrieve all patients
 app.get('/patients', (req, res) => {
-    db.query('SELECT * FROM patients', (err, results) => {
+    db.query('SELECT patient_id, first_name, last_name, date_of_birth FROM patients', (err, results) => {
         if (err) {
-            return res.status(500).json({ error: 'Failed to fetch patients' });
+            return res.status(500).json({ error: 'Failed to retrieve patients' });
         }
         res.json(results);
     });
 });
 
-// Example API endpoint to add a new patient
-app.post('/patients', (req, res) => {
-    const { name, age, condition } = req.body;
-    db.query('INSERT INTO patients (name, age, condition) VALUES (?, ?, ?)', [name, age, condition], (err, results) => {
+// 2. Retrieve all providers
+app.get('/providers', (req, res) => {
+    db.query('SELECT first_name, last_name, provider_specialty FROM providers', (err, results) => {
         if (err) {
-            return res.status(500).json({ error: 'Failed to add patient' });
+            return res.status(500).json({ error: 'Failed to retrieve providers' });
         }
-        res.status(201).json({ id: results.insertId, name, age, condition });
+        res.json(results);
     });
 });
 
-// Example API endpoint to update a patient
-app.put('/patients/:id', (req, res) => {
-    const { id } = req.params;
-    const { name, age, condition } = req.body;
-    db.query('UPDATE patients SET name = ?, age = ?, condition = ? WHERE id = ?', [name, age, condition, id], (err, results) => {
+// 3. Filter patients by First Name
+app.get('/patients/first_name/:firstName', (req, res) => {
+    const { firstName } = req.params;
+    db.query('SELECT patient_id, first_name, last_name, date_of_birth FROM patients WHERE first_name = ?', [firstName], (err, results) => {
         if (err) {
-            return res.status(500).json({ error: 'Failed to update patient' });
+            return res.status(500).json({ error: 'Failed to retrieve patients' });
         }
-        res.json({ id, name, age, condition });
+        res.json(results);
     });
 });
 
-// Example API endpoint to delete a patient
-app.delete('/patients/:id', (req, res) => {
-    const { id } = req.params;
-    db.query('DELETE FROM patients WHERE id = ?', [id], (err, results) => {
+// 4. Retrieve all providers by their specialty
+app.get('/providers/specialty/:specialty', (req, res) => {
+    const { specialty } = req.params;
+    db.query('SELECT first_name, last_name, provider_specialty FROM providers WHERE provider_specialty = ?', [specialty], (err, results) => {
         if (err) {
-            return res.status(500).json({ error: 'Failed to delete patient' });
+            return res.status(500).json({ error: 'Failed to retrieve providers' });
         }
-        res.json({ message: 'Patient deleted successfully' });
+        res.json(results);
     });
 });
 
